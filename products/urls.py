@@ -1,7 +1,8 @@
 from django.urls import path
 from . import views
 from favorites.views import add_favorite,favorite_list,delete_favorite
-
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.home,name='home'),
@@ -12,6 +13,6 @@ urlpatterns = [
     path('delete_favorite/<str:id>/',delete_favorite,name='delete_favorite'),
     path('delete_product/<str:id>/',views.delete_product,name='delete_product'),
     path('detail_product/<str:id>/',views.detail_product,name='detail_product'),
-    
+    path('category_page',views.category_page,name='category_page'),
     path('favorite_list/', favorite_list,name="favorite_list")
 ]

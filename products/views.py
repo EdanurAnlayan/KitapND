@@ -1,5 +1,6 @@
 from django.contrib import messages
-from products.models import Product,ProductImages
+from django.db import models
+from products.models import Category, Product,ProductImages
 from products.forms import addProductForm,ImageForm
 from comment.models import Comment
 from comment.forms import CommentForm
@@ -10,7 +11,12 @@ from favorites.models import Favorites
 from django.contrib.auth.decorators import login_required
 
 def home(request):
-    return render(request,'products/homepage.html')
+    categories = Category.objects.all()
+    context ={
+
+        'categories' : categories
+    }
+    return render(request,'products/homepage.html',context)
 
 #My products
 @login_required(login_url='home')
@@ -191,5 +197,6 @@ def border_form_input(form):
             form.fields[field.name].widget.attrs["class"]+=" is-valid"
     return form
 
-
+def category_page(request):
+    return render(request,'products/categorypage.html')
 

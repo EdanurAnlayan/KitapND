@@ -11,7 +11,7 @@
             <div class="card-body px-3 pt-grid-gutter pb-0">
               <div class="row g-0 ps-1">
                 {% for cat in categories %}
-                <div class="col-sm-1 px-2 mb-grid-gutter"><a class="d-block text-center text-decoration-none me-1" href="shop-grid-ls.html"><img class="d-block mb-3" src="{{ cat.image.url }}" alt="Men">
+                <div class="col-sm-1 px-2 mb-grid-gutter"><a class="d-block text-center text-decoration-none me-1" href="{% url 'category_page' %}"><img class="d-block mb-3" src="{{ cat.image.url }}" alt="{{ cat.category_name }}">
                     <h3 class="fs-base pt-1 mb-0">{{ cat.category_name }}</h3></a></div>
                 {% endfor %}
               </div>

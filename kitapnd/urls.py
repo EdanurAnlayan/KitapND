@@ -27,7 +27,5 @@ urlpatterns = [
     path('comment/api/', include('comment.api.urls')),
     path('favorites/api/', include('favorites.api.urls')),
     path('basket/', include('basket.urls')),
-]
+]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-urlpatterns += static(settings.MEDIA_URL,document_root = settings.MEDIA_ROOT)
