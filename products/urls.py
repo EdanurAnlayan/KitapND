@@ -13,6 +13,6 @@ urlpatterns = [
     path('delete_favorite/<str:id>/',delete_favorite,name='delete_favorite'),
     path('delete_product/<str:id>/',views.delete_product,name='delete_product'),
     path('detail_product/<str:id>/',views.detail_product,name='detail_product'),
-    path('category_page',views.category_page,name='category_page'),
+    path('category_page/<slug>',views.category_page,name='category_page'),
     path('favorite_list/', favorite_list,name="favorite_list")
 ]

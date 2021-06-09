@@ -197,6 +197,17 @@ def border_form_input(form):
             form.fields[field.name].widget.attrs["class"]+=" is-valid"
     return form
 
-def category_page(request):
-    return render(request,'products/categorypage.html')
+def category_page(request,slug):
+    products = Product.objects.filter(categories__slug = slug)
+    rate = Comment.objects.filter(product__categories__slug = slug)
+    rate_list = []
+    for i in products:
+        reviews=rate.filter(product_id = i.id)
+        avg_rate = reviews.aggregate(Avg('rate'))
+        rate_list.append(avg_rate)
+    context = {
+        'products' : products,
+        'rate_list' : rate_list
+    }
+    return render(request,'products/categorypage.html',context)
 

@@ -1,10 +1,10 @@
+
 from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 import os
 from django.db.models.signals import post_save
-
 class Category(models.Model):
     category_name = models.CharField(max_length=50)
     keywords = models.CharField(max_length=100)
