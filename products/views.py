@@ -202,12 +202,19 @@ def category_page(request,slug):
     rate = Comment.objects.filter(product__categories__slug = slug)
     rate_list = []
     for i in products:
+        is_fav =  False
+        if Favorites.objects.filter(product_id=i.id,user=request.user).exists():
+            is_fav= True
         reviews=rate.filter(product_id = i.id)
         avg_rate = reviews.aggregate(Avg('rate'))
-        rate_list.append(avg_rate)
+        if avg_rate["rate__avg"]:
+            pass
+        else:
+            avg_rate["rate__avg"] = 0
+        
+        rate_list.append({'product':i,'rate':avg_rate,'fav':is_fav})
     context = {
-        'products' : products,
-        'rate_list' : rate_list
+        'rate_list':rate_list
     }
     return render(request,'products/categorypage.html',context)
 

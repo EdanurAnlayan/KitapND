@@ -1,5 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
+
 {% block css %}
 <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
 {% endblock %}
@@ -290,22 +291,32 @@
           <!-- Products grid-->
           <div class="row mx-n2">
             <!-- Product-->
-            {% for product in products %}
+            {% for i in rate_list %}
+            
             <div class="col-md-4 col-sm-6 px-2 mb-4">
               <div class="card product-card">
-                <button class="btn-wishlist btn-sm" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title="Add to wishlist"><i class="icon-heart-empty"><a href="{% url 'add_favorite' product.id %}"></a></i></button>
-                <a class="card-img-top d-block overflow-hidden" href="{% url 'detail_product' product.id %}"><img src="{{ product.first_image }}" alt="Product"></a>
+                <button class="btn-wishlist btn-sm" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title="Add to wishlist"><i {% if i.fav %} class="icon-heart" {% else %} class="icon-heart-empty" {% endif %}><a href="{% url 'add_favorite' i.product.id %}"></a></i></button>
+                <a class="card-img-top d-block overflow-hidden" href="{% url 'detail_product' i.product.id %}"><img src="{{ i.product.first_image }}" alt="Product"></a>
                 <div class="card-body py-2">
-                  <h3 class="product-title fs-sm"><a href="{% url 'detail_product' product.id %}">{{ product.product_name }}</a></h3>
+                  <h3 class="product-title fs-sm"><a href="{% url 'detail_product' i.product.id %}">{{ i.product.product_name }}</a></h3>
                   <div class="d-flex justify-content-between">
-                    <div class="product-price"><span class="text-accent">{{ product.price }}₺</span></div>
+                    <div class="product-price"><span class="text-accent">{{ i.product.price }}₺</span></div>
                     <div class="star-rating">
-                      <i {% if rate_list.forloop.counter0.rate__avg > 0 %} class="star-rating-icon ci-star-filled active" {% else %} class="star-rating-icon ci-star" {% endif %}></i>
-                      <i {% if rate_list.forloop.counter0.rate__avg > 1 %} class="star-rating-icon ci-star-filled active" {% else %} class="star-rating-icon ci-star" {% endif %}></i>
-                      <i {% if rate_list.forloop.counter0.rate__avg > 2 %} class="star-rating-icon ci-star-filled active" {% else %} class="star-rating-icon ci-star" {% endif %}></i>
-                      <i {% if rate_list.forloop.counter0.rate__avg > 3 %} class="star-rating-icon ci-star-filled active" {% else %} class="star-rating-icon ci-star" {% endif %}></i>
-                      <i {% if rate_list.forloop.counter0.rate__avg > 4 %} class="star-rating-icon ci-star-filled active" {% else %} class="star-rating-icon ci-star" {% endif %}></i>
-                    </div>
+                       {% if i.rate.rate__avg %}
+                      <i {% if i.rate.rate__avg > 0 %} class="star-rating-icon ci-star-filled active" {% else %} class="star-rating-icon ci-star" {% endif %}></i>
+                      <i {% if i.rate.rate__avg > 1 %} class="star-rating-icon ci-star-filled active" {% else %} class="star-rating-icon ci-star" {% endif %}></i>
+                      <i {% if i.rate.rate__avg > 2 %} class="star-rating-icon ci-star-filled active" {% else %} class="star-rating-icon ci-star" {% endif %}></i>
+                      <i {% if i.rate.rate__avg > 3 %} class="star-rating-icon ci-star-filled active" {% else %} class="star-rating-icon ci-star" {% endif %}></i>
+                      <i {% if i.rate.rate__avg > 4 %} class="star-rating-icon ci-star-filled active" {% else %} class="star-rating-icon ci-star" {% endif %}></i>
+                      {% else %}
+                      <i class="star-rating-icon ci-star"></i>
+                      <i class="star-rating-icon ci-star"></i>
+                      <i class="star-rating-icon ci-star"></i>
+                      <i class="star-rating-icon ci-star"></i>
+                      <i class="star-rating-icon ci-star"></i>
+                      {% endif %}
+               </div>
+
                   </div>
                 </div>
                 <div class="card-body card-body-hidden">
