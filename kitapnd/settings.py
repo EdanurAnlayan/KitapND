@@ -13,7 +13,7 @@ SECRET_KEY = 'ps)w+_^%%$9fhautmvdo-wre7k!ax)6=1s$tj^02j6r_qi6#8p'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -25,14 +25,23 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'products',
     'comment',
     'favorites',
     'basket',
     'django_cleanup',
+    'kullanici',
+
     'django_filters',
     'rest_framework',
+    'rest_framework.authtoken',
+    'rest_auth',
+    'allauth.account',
+    'crispy_forms',
+    'direct',
 ]
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -45,11 +54,13 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'kitapnd.urls'
-
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR,'template')], #html dosya yolu verildi.
+        'DIRS': [os.path.join(BASE_DIR,'templates')], #html dosya yolu verildi.
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -61,7 +72,7 @@ TEMPLATES = [
         },
     },
 ]
-
+AUTH_USER_MODEL = 'kullanici.User'
 WSGI_APPLICATION = 'kitapnd.wsgi.application'
 
 
@@ -118,3 +129,26 @@ STATICFILES_DIRS = ( os.path.join('static'), )
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'kitapndproject@gmail.com'
+EMAIL_HOST_PASSWORD = 'RAMAZAN123.'
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication'
+    ],
+
+}
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+]

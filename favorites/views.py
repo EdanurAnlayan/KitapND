@@ -1,7 +1,10 @@
-from django.shortcuts import redirect, render
+from products.views import home
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render, HttpResponseRedirect
 from favorites.models import Favorites
 from products.models import Product
 
+@login_required(login_url='home')
 def favorite_process(request,id):
     product = Product.objects.get(id=id)
     
@@ -12,11 +15,11 @@ def favorite_process(request,id):
         
 def add_favorite(request,id):
     favorite_process(request,id)
-    return redirect('detail_product',id)
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER","/products"))
 
 def delete_favorite(request,id):
     favorite_process(request,id)
-    return redirect('favorite_list')
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER","/products"))
 
 def favorite_list(request):
     favorites = Favorites.objects.filter(user=request.user)

@@ -1,12 +1,14 @@
 from django.contrib import messages
 from django.db import models
+from django.db.models.aggregates import Count
+from django.http.request import validate_host
 from products.models import Category, Product,ProductImages
 from products.forms import addProductForm,ImageForm
 from comment.models import Comment
 from comment.forms import CommentForm
 from django.shortcuts import redirect, render
 from django.forms import modelformset_factory
-from django.db.models import Avg
+from django.db.models import Avg,Max,Min
 from favorites.models import Favorites
 from django.contrib.auth.decorators import login_required
 
@@ -197,14 +199,22 @@ def border_form_input(form):
             form.fields[field.name].widget.attrs["class"]+=" is-valid"
     return form
 
+
 def category_page(request,slug):
     products = Product.objects.filter(categories__slug = slug)
     rate = Comment.objects.filter(product__categories__slug = slug)
     rate_list = []
+    min_price = products.aggregate(Min('price'))['price__min']
+    max_price = products.aggregate(Max('price'))['price__max']
+    authors = Product.objects.values('keywords',).annotate(Count('id')).order_by().filter(id__count__gt=0)
+    categories = Product.objects.values('categories__category_name','categories__slug').annotate(Count('id')).order_by().filter(id__count__gt=0)
+    
     for i in products:
         is_fav =  False
-        if Favorites.objects.filter(product_id=i.id,user=request.user).exists():
-            is_fav= True
+        if request.user.is_authenticated:
+            
+            if Favorites.objects.filter(product_id=i.id,user=request.user).exists():
+                is_fav= True
         reviews=rate.filter(product_id = i.id)
         avg_rate = reviews.aggregate(Avg('rate'))
         if avg_rate["rate__avg"]:
@@ -214,7 +224,11 @@ def category_page(request,slug):
         
         rate_list.append({'product':i,'rate':avg_rate,'fav':is_fav})
     context = {
-        'rate_list':rate_list
+        'authors' : authors,
+        'min_price' : min_price,
+        'max_price' : max_price,
+        'categories' : categories,
+        'rate_list' : rate_list
     }
     return render(request,'products/categorypage.html',context)
 
