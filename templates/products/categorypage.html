@@ -56,6 +56,8 @@
                 </div>
               </div>
               <!-- Price range-->
+              <form method="POST">
+                {% csrf_token %}
               <div class="widget mb-4 pb-4 border-bottom">
                 <h3 class="widget-title">Fiyat</h3>
                 <div class="range-slider" data-start-min="{{ min_price }}" data-start-max="{{ max_price }}" data-min="{{ min_price }}" data-max="{{ max_price }}" data-step="1">
@@ -63,12 +65,12 @@
                   <div class="d-flex pb-1">
                     <div class="w-50 pe-2 me-2">
                       <div class="input-group input-group-sm"><span class="input-group-text">₺</span>
-                        <input class="form-control range-slider-value-min" type="text">
+                        <input name="min_price" class="form-control range-slider-value-min" type="text">
                       </div>
                     </div>
                     <div class="w-50 ps-2">
                       <div class="input-group input-group-sm"><span class="input-group-text">₺</span>
-                        <input class="form-control range-slider-value-max" type="text">
+                        <input name="max_price" class="form-control range-slider-value-max" type="text">
                       </div>
                     </div>
                   </div>
@@ -81,13 +83,17 @@
                   {% for author in authors %}
                   <li class="widget-filter-item d-flex justify-content-between align-items-center mb-1">
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="adidas">
-                      <label class="form-check-label widget-filter-item-text" for="adidas">{{ author.keywords }}</label>
+                      <input  name="author" value="{{ author.author }}" class="form-check-input" type="checkbox">
+                      <label class="form-check-label widget-filter-item-text">{{ author.author }}</label>
                     </div><span class="fs-xs text-muted">{{ author.id__count }}</span>
                   </li>
                   {% endfor %}
                 </ul>
               </div>
+              <div class="widget widget-filter mb-2 pb-4 border-bottom">
+                <input class="btn btn-primary btn-sm d-block w-100" type="submit" value="Filtrele">
+              </div>
+              </form>
             </div>
           </div>
         </aside>
@@ -139,7 +145,7 @@
                   </div>
                 </div>
                 <div class="card-body">
-                  <button class="btn btn-primary btn-sm d-block w-100 mb-2" type="button"><i class="ci-cart fs-sm me-1"></i>Sepete Ekle</button>
+                  <a href="{% url 'add_basket' i.product.id %}"><button class="btn btn-primary btn-sm d-block w-100 mb-2" type="button"><i class="ci-cart fs-sm me-1"></i>{% if i.basket %} Sepete Eklendi {% else %} Sepete Ekle {% endif %}</button></a>
                 </div>
               </div>
               <hr class="d-sm-none">

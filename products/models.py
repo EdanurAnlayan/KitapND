@@ -60,6 +60,7 @@ class Product(models.Model):
     updated_time = models.DateTimeField(auto_now=True)
     price = models.IntegerField(validators=[integer_validator])
     amount = models.IntegerField(validators=[integer_validator])
+    author = models.CharField(max_length=100,default="ali",validators=[product_name_validator])
 
     def first_image(self):
         images = ProductImages.objects.filter(product_id = self.id)

@@ -1,4 +1,6 @@
 
+from django.forms.fields import IntegerField
+from django.forms.widgets import CheckboxInput
 from products.models import Product,ProductImages,Category
 from django import forms
 

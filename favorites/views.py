@@ -17,10 +17,6 @@ def add_favorite(request,id):
     favorite_process(request,id)
     return HttpResponseRedirect(request.META.get("HTTP_REFERER","/products"))
 
-def delete_favorite(request,id):
-    favorite_process(request,id)
-    return HttpResponseRedirect(request.META.get("HTTP_REFERER","/products"))
-
 def favorite_list(request):
     favorites = Favorites.objects.filter(user=request.user)
     favarites_count = favorites.count()

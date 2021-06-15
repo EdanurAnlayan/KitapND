@@ -57,7 +57,7 @@
               <div class="d-flex flex-wrap justify-content-between align-items-center border-top pt-3">
                 <div class="py-2 me-2">
                   <a href="{% url 'add_favorite' product.id %}">
-                  <button class="btn btn-outline-accent" type="button"><i {% if is_favorite %} class="icon-heart fs-lg me-2" {% else %} class="icon-heart-empty fs-lg me-2" {% endif %}></i>Favorilere Ekle</button>
+                  <button class="btn btn-outline-accent" type="button"><i {% if is_favorite %} class="icon-heart fs-lg me-2" {% else %} class="icon-heart-empty fs-lg me-2" {% endif %}></i>{% if is_favorite %} Favorilere Eklendi {% else %} Favorilere Ekle {% endif %}</button>
                   </a>
                 </div>
               </div>
@@ -82,7 +82,7 @@
                     </div>
                   </div>
                 </div>
-                <button class="btn btn-primary btn-shadow d-block w-100 mt-4" type="button"><i class="ci-cart fs-lg me-2"></i>Sepete Ekle</button>
+                <a href="{% url 'add_basket' product.id %}"><button class="btn btn-primary btn-shadow d-block w-100 mt-4" type="button"><i class="ci-cart fs-lg me-2"></i>{% if is_basket %} Sepete Eklendi {% else %} Sepete Ekle {% endif %}</button></a>
                 <div class="bg-secondary rounded p-3 mt-4 mb-2"><a class="d-flex align-items-center" href="#"><img class="rounded-circle" src="{% static 'img/testimonials/01.jpg' %}" width="50" alt="Sara Palson">
                     <div class="ps-2"><span class="fs-ms text-muted">Satıcı</span>
                       <h6 class="fs-sm mb-0">{{ product.user }}</h6>

@@ -1,7 +1,9 @@
+from basket.models import Basket
 from django.contrib import messages
 from django.db import models
 from django.db.models.aggregates import Count
 from django.http.request import validate_host
+from django.http.response import HttpResponse
 from products.models import Category, Product,ProductImages
 from products.forms import addProductForm,ImageForm
 from comment.models import Comment
@@ -11,6 +13,7 @@ from django.forms import modelformset_factory
 from django.db.models import Avg,Max,Min
 from favorites.models import Favorites
 from django.contrib.auth.decorators import login_required
+import json
 
 def home(request):
     categories = Category.objects.all()
@@ -141,7 +144,7 @@ def delete_product(request,id):
         messages.success(request,"Bu sayfaya erişim izniniz bulunmamaktadır!",extra_tags="danger")
         return redirect('home')
 
-def context_al(request,reviews,product,images,categories,form,is_favorite):
+def context_al(request,reviews,product,images,categories,form,is_favorite,is_basket):
     avg_rate = reviews.aggregate(Avg('rate'))
     
     if avg_rate["rate__avg"] is not None:
@@ -162,7 +165,8 @@ def context_al(request,reviews,product,images,categories,form,is_favorite):
                 'form' : form,
                 'avg_rate': avg_rate,
                 'ratelist' : ratelist,
-                'is_favorite' : is_favorite
+                'is_favorite' : is_favorite,
+                'is_basket' : is_basket,
             }
     return render(request,'products/single_product.html',context)
 
@@ -173,9 +177,12 @@ def detail_product(request,id):
     categories = product.categories.all()
     form = CommentForm(data=request.POST or None)
     reviews = Comment.objects.filter(product_id=id)
-    is_favorite= False
+    is_favorite = False
+    is_basket = False
     if Favorites.objects.filter(product_id=product.id,user=request.user).exists():
         is_favorite= True
+    if Basket.objects.filter(product_id=product.id,user=request.user).exists():
+        is_basket = True
     if request.method == 'POST':
         if form.is_valid():
             form_save = form.save(commit=False)
@@ -186,10 +193,10 @@ def detail_product(request,id):
             return redirect('detail_product',id)
         else:
             messages.success(request,'Puan vermeniz gerekmektedir.',extra_tags='danger')
-            return context_al(request,reviews,product,images,categories,form,is_favorite)
+            return context_al(request,reviews,product,images,categories,form,is_favorite,is_basket)
     else:
         form=CommentForm()
-    return context_al(request,reviews,product,images,categories,form,is_favorite)
+    return context_al(request,reviews,product,images,categories,form,is_favorite,is_basket)
 
 def border_form_input(form):
     for field in form:
@@ -199,30 +206,44 @@ def border_form_input(form):
             form.fields[field.name].widget.attrs["class"]+=" is-valid"
     return form
 
+def cat_page_prep(products):
+    min_price = products.aggregate(Min('price'))['price__min']
+    max_price = products.aggregate(Max('price'))['price__max']
+    authors = products.values('author',).annotate(Count('id')).order_by().filter(id__count__gt=0)
+    categories = Product.objects.values('categories__category_name','categories__slug').annotate(Count('id')).order_by().filter(id__count__gt=0)
+    
+    return min_price,max_price,authors,categories
 
 def category_page(request,slug):
     products = Product.objects.filter(categories__slug = slug)
     rate = Comment.objects.filter(product__categories__slug = slug)
     rate_list = []
-    min_price = products.aggregate(Min('price'))['price__min']
-    max_price = products.aggregate(Max('price'))['price__max']
-    authors = Product.objects.values('keywords',).annotate(Count('id')).order_by().filter(id__count__gt=0)
-    categories = Product.objects.values('categories__category_name','categories__slug').annotate(Count('id')).order_by().filter(id__count__gt=0)
+    min_price,max_price,authors,categories = cat_page_prep(products)
     
+    if request.method == "POST":
+        min_p = request.POST["min_price"]
+        max_p = request.POST["max_price"]
+        if "author" in request.POST.keys():
+            aut = request.POST.getlist('author')
+            products = products.filter(price__gte = min_p, price__lte = max_p, author__in = aut)
+        else:
+            products = products.filter(price__gte = min_p,price__lte = max_p)
+
     for i in products:
         is_fav =  False
+        is_basket =  False
         if request.user.is_authenticated:
-            
             if Favorites.objects.filter(product_id=i.id,user=request.user).exists():
                 is_fav= True
+            if Basket.objects.filter(product_id=i.id,user=request.user).exists():
+                is_basket = True
         reviews=rate.filter(product_id = i.id)
         avg_rate = reviews.aggregate(Avg('rate'))
         if avg_rate["rate__avg"]:
             pass
         else:
             avg_rate["rate__avg"] = 0
-        
-        rate_list.append({'product':i,'rate':avg_rate,'fav':is_fav})
+        rate_list.append({'product':i,'rate':avg_rate,'fav':is_fav,'basket':is_basket})
     context = {
         'authors' : authors,
         'min_price' : min_price,
@@ -232,3 +253,56 @@ def category_page(request,slug):
     }
     return render(request,'products/categorypage.html',context)
 
+## ş harfini kabul etmiyor!!
+def search(request):
+    rate_list = []
+    if request.method == "POST":
+        query = request.POST['search']
+        if len(query)<3:
+            messages.success(request,"En az 3 karakter girmeniz gerekmektedir.",extra_tags="danger")
+            return redirect('home')
+        else:
+            products = Product.objects.filter(product_name__icontains = query) | Product.objects.filter(author__icontains = query)
+            if products.count() < 1:
+                messages.success(request,"Aradığınız ürün bulunmamaktadır.",extra_tags="danger")
+                return redirect('home')
+            rate = Comment.objects.filter(product__product_name__icontains = query)
+            min_price,max_price,authors,categories = cat_page_prep(products)
+        
+            for i in products:
+                is_fav =  False
+                if request.user.is_authenticated:
+                    if Favorites.objects.filter(product_id=i.id,user=request.user).exists():
+                        is_fav= True
+                reviews=rate.filter(product_id = i.id)
+                avg_rate = reviews.aggregate(Avg('rate'))
+                if avg_rate["rate__avg"]:
+                    pass
+                else:
+                    avg_rate["rate__avg"] = 0
+                rate_list.append({'product':i,'rate':avg_rate,'fav':is_fav})
+            context ={
+                'authors' : authors,
+                'min_price' : min_price,
+                'max_price' : max_price,
+                'categories' : categories,
+                'rate_list' : rate_list
+            }
+            return render(request,'products/categorypage.html',context)
+    return redirect('home')
+
+##yanlış yerde açılıyor
+def auto_complete(request):
+    if request.is_ajax():
+        q = request.GET.get('term', '')
+        products = Product.objects.filter(product_name__icontains=q)
+        results = []
+        for p in products:
+            products_json = {}
+            products_json = p.product_name
+            results.append(products_json)
+        data = json.dumps(results)
+    else:
+        data = 'fail'
+    mimetype = 'application/json'
+    return HttpResponse(data, mimetype)

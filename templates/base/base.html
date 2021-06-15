@@ -23,7 +23,7 @@
     <!-- Vendor Styles including: Font Icons, Plugins, etc.-->
     <link rel="stylesheet" media="screen" href="{% static 'vendor/simplebar/dist/simplebar.min.css' %}"/>
     <link rel="stylesheet" media="screen" href="{% static 'vendor/tiny-slider/dist/tiny-slider.css' %}"/>
-
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
 
     <link rel="stylesheet" media="screen" href="{% static 'vendor/nouislider/distribute/nouislider.min.css' %}"/>
     <link rel="stylesheet" media="screen" href="{% static 'vendor/drift-zoom/dist/drift-basic.min.css' %}"/>
@@ -32,14 +32,13 @@
     {% block css %}
     {% endblock %}
   </head>
+  
   <!-- Body-->
   <body class="handheld-toolbar-enabled">
     <!-- Sign in / sign up modal-->
  
     <!-- Navbar 3 Level (Light)-->
     <div id="app">
-
-
     <header class="shadow-sm">
       <!-- Topbar-->
       {% include 'base/topbar.html' %}
@@ -48,7 +47,11 @@
         <div class="navbar navbar-expand-lg navbar-light">
           <div class="container"><a class="navbar-brand d-none d-sm-block flex-shrink-0" href="index.html"><img src="{% static "img/logo-dark.png" %}" width="142" alt="Cartzilla"></a><a class="navbar-brand d-sm-none flex-shrink-0 me-2" href="index.html"><img src="{% static 'img/logo-icon.png' %}" width="74" alt="Cartzilla"></a>
             <div class="input-group d-none d-lg-flex mx-4">
-              <input class="form-control rounded-end pe-5" type="text" placeholder="Search for products"><i class="ci-search position-absolute top-50 end-0 translate-middle-y text-muted fs-base me-3"></i>
+              <form class="input-group d-none d-lg-flex mx-4" method="POST" action="{% url 'search' %}">
+                {% csrf_token %}
+                <input id="search" name="search" class="form-control rounded-end pe-5" type="text" placeholder="Arama">
+                <button class="btn shadow-none ci-search position-absolute top-50 end-0 translate-middle-y text-muted fs-base"></button>
+              </form>
             </div>
             <div class="navbar-toolbar d-flex flex-shrink-0 align-items-center">
             <!-- 2 alt satırdaki hrefe if else koyalım. if kullanıcı login olduysa profile götürsün yoksa login ekranına -->
@@ -100,42 +103,42 @@
     <!-- Back To Top Button--><a class="btn-scroll-top" href="#top" data-scroll><span class="btn-scroll-top-tooltip text-muted fs-sm me-2">Top</span><i class="btn-scroll-top-icon ci-arrow-up">   </i></a>
     <!-- Vendor scrits: js libraries and plugins-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
     <script src="{% static 'vendor/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'vendor/simplebar/dist/simplebar.min.js' %}"></script>
     <script src="{% static 'vendor/tiny-slider/dist/min/tiny-slider.js' %}"></script>
     <script src="{% static 'vendor/smooth-scroll/dist/smooth-scroll.polyfills.min.js' %}"></script>
     <script src="{% static 'vendor/nouislider/distribute/nouislider.min.js' %}"></script>
-
+    <script src="{% static 'vendor/card/dist/card.js' %}"></script>
     <script src="{% static 'vendor/drift-zoom/dist/Drift.min.js' %}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
     <!-- Main theme script-->
 <script src="{% static 'js/theme.min.js' %}"></script>
+
     {% block javascript %}
+    <script>
+
+      $(function() {
+        $("#search").autocomplete({
+          source: "/products/auto_complete/",
+          select: function (event, ui) { //item selected
+            AutoCompleteSelectHandler(event, ui)
+          },
+          minLength: 3,
+        });
+      });
+    
+      function AutoCompleteSelectHandler(event, ui)
+      {
+        var selectedObj = ui.item;
+      }
+    
+    </script>
     {% endblock %}
     {% block js %}
     {% endblock %}
            {% block vue %}
-     <script type="application/javascript">
-            var app = new Vue({
-                delimiters : ["[[","]]"],
-                el : "#app",
-                data : {
-                    text : "test",
-            {% block vue_data %}
-            {% endblock %}
-                },
-            methods : {
-            {% block vue_method %}
-            {% endblock %}
-            },
-            created(){
-                {% block vue_created %}
-                {% endblock %}
-            }
-            });
-        </script>
-
     {% endblock %}
 
 
