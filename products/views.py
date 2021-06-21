@@ -1,8 +1,6 @@
 from basket.models import Basket
 from django.contrib import messages
-from django.db import models
 from django.db.models.aggregates import Count
-from django.http.request import validate_host
 from django.http.response import HttpResponse
 from products.models import Category, Product,ProductImages
 from products.forms import addProductForm,ImageForm
@@ -14,11 +12,15 @@ from django.db.models import Avg,Max,Min
 from favorites.models import Favorites
 from django.contrib.auth.decorators import login_required
 import json
+from basket.views import basket_product_list
 
 def home(request):
+    products_in_basket,products_count,total_price = basket_product_list(request)
     categories = Category.objects.all()
     context ={
-
+        'total_price' : total_price,
+        'products_in_basket' : products_in_basket,
+        'products_count' : products_count,
         'categories' : categories
     }
     return render(request,'products/homepage.html',context)
@@ -26,6 +28,7 @@ def home(request):
 #My products
 @login_required(login_url='home')
 def view_products(request):
+    products_in_basket,products_count,total_price = basket_product_list(request)
     products = Product.objects.filter(user_id=request.user.id)
     
     if request.method == 'POST':
@@ -37,16 +40,23 @@ def view_products(request):
         elif ordering == "Fiyat":
             products = products.order_by('price')  
     context = {
+        'total_price' : total_price,
+        'products_in_basket' : products_in_basket,
+        'products_count' : products_count,
         'products': products, 
     }
     return render(request,'products/my_products.html',context)
 
 #Add_product_yönlendirme
 def add_product_yonlendirme(request,form,Image_formset):
+    products_in_basket,products_count,total_price = basket_product_list(request)
     if request.method == 'POST':
         form = border_form_input(form)
     formset = Image_formset(queryset=ProductImages.objects.none())
     context = {
+        'total_price' : total_price,
+        'products_in_basket' : products_in_basket,
+        'products_count' : products_count,
         'form' : form,
         'formset' : formset,
     }
@@ -100,6 +110,7 @@ def add_product(request):
 #Edit product
 @login_required(login_url='home')
 def edit_product(request,id):
+    products_in_basket,products_count,total_price = basket_product_list(request)
     product = Product.objects.get(id=id)
     form = addProductForm(instance=product)
     if request.user == product.user:
@@ -112,6 +123,9 @@ def edit_product(request,id):
                     messages.success(request,"Bir hata oluştu! Lütfen tekrar deneyin.",extra_tags="danger")
                     form = addProductForm(instance=product)
                     context = {
+                        'total_price' : total_price,
+                        'products_in_basket' : products_in_basket,
+                        'products_count' : products_count,
                         'form' : form,
                     }
                     return render(request, "product/edit_product.html",context)
@@ -121,6 +135,9 @@ def edit_product(request,id):
                 messages.success(request,"Bir hata oluştu! Lütfen tekrar deneyin.",extra_tags="danger")
                 return redirect('view_products')
         context = {
+            'total_price' : total_price,
+            'products_in_basket' : products_in_basket,
+            'products_count' : products_count,
             'form' : form,
         }
         return render(request, 'products/edit_product.html',context)
@@ -131,12 +148,16 @@ def edit_product(request,id):
 #Delete product
 @login_required(login_url='home')
 def delete_product(request,id):
+    products_in_basket,products_count,total_price = basket_product_list(request)
     product = Product.objects.get(id=id)
     if request.user == product.user:
         if request.method == 'POST':
             product.delete()
             return redirect("view_products")
         context = {
+            'total_price' : total_price,
+            'products_in_basket' : products_in_basket,
+            'products_count' : products_count,
             'product' : product
         }
         return render(request,'products/delete_product.html',context)
@@ -145,6 +166,7 @@ def delete_product(request,id):
         return redirect('home')
 
 def context_al(request,reviews,product,images,categories,form,is_favorite,is_basket):
+    products_in_basket,products_count,total_price = basket_product_list(request)
     avg_rate = reviews.aggregate(Avg('rate'))
     
     if avg_rate["rate__avg"] is not None:
@@ -158,6 +180,9 @@ def context_al(request,reviews,product,images,categories,form,is_favorite,is_bas
         ratelist.append(reviews.filter(rate=i).count()*100)
     
     context = {
+                'total_price' : total_price,
+                'products_in_basket' : products_in_basket,
+                'products_count' : products_count,
                 'reviews' : reviews,
                 'product' : product,
                 'images' : images,
@@ -215,6 +240,7 @@ def cat_page_prep(products):
     return min_price,max_price,authors,categories
 
 def category_page(request,slug):
+    products_in_basket,products_count,total_price = basket_product_list(request)
     products = Product.objects.filter(categories__slug = slug)
     rate = Comment.objects.filter(product__categories__slug = slug)
     rate_list = []
@@ -245,6 +271,9 @@ def category_page(request,slug):
             avg_rate["rate__avg"] = 0
         rate_list.append({'product':i,'rate':avg_rate,'fav':is_fav,'basket':is_basket})
     context = {
+        'total_price' : total_price,
+        'products_in_basket' : products_in_basket,
+        'products_count' : products_count,
         'authors' : authors,
         'min_price' : min_price,
         'max_price' : max_price,
@@ -255,6 +284,7 @@ def category_page(request,slug):
 
 ## ş harfini kabul etmiyor!!
 def search(request):
+    products_in_basket,products_count,total_price = basket_product_list(request)
     rate_list = []
     if request.method == "POST":
         query = request.POST['search']
@@ -282,6 +312,9 @@ def search(request):
                     avg_rate["rate__avg"] = 0
                 rate_list.append({'product':i,'rate':avg_rate,'fav':is_fav})
             context ={
+                'total_price' : total_price,
+                'products_in_basket' : products_in_basket,
+                'products_count' : products_count,
                 'authors' : authors,
                 'min_price' : min_price,
                 'max_price' : max_price,

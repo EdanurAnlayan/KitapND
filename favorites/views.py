@@ -1,8 +1,8 @@
-from products.views import home
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, render, HttpResponseRedirect
+from django.shortcuts import render, HttpResponseRedirect
 from favorites.models import Favorites
 from products.models import Product
+from basket.views import basket_product_list
 
 @login_required(login_url='home')
 def favorite_process(request,id):
@@ -18,15 +18,18 @@ def add_favorite(request,id):
     return HttpResponseRedirect(request.META.get("HTTP_REFERER","/products"))
 
 def favorite_list(request):
+    products_in_basket,products_count,total_price = basket_product_list(request)
     favorites = Favorites.objects.filter(user=request.user)
     favarites_count = favorites.count()
     products=[]
     for i in favorites:
         products.append(i.product)
     context = {
+        'total_price' : total_price,
+        'products' : products_in_basket,
+        'products_count' : products_count,
         'favorites' : products,
         'favarites_count' : favarites_count,
         'user' : request.user
     }
-
     return render(request,'products/favorite_list.html',context)

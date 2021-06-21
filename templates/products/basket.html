@@ -10,8 +10,8 @@
         <div class="order-lg-2 mb-3 mb-lg-0 pt-lg-2">
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb breadcrumb-light flex-lg-nowrap justify-content-center justify-content-lg-start">
-              <li class="breadcrumb-item"><a class="text-nowrap" href="index.html"><i class="ci-home"></i>Anasayfa</a></li>
-              <li class="breadcrumb-item text-nowrap"><a href="shop-grid-ls.html">Alışveriş</a>
+              <li class="breadcrumb-item"><a class="text-nowrap" href="{% url 'home' %}"><i class="ci-home"></i>Anasayfa</a></li>
+              <li class="breadcrumb-item text-nowrap"><a href="{% url 'home' %}">Alışveriş</a> <!-- Burayı kaldıralım çünkü anasayfada alışveriş başlığı altında sepet yok. Bu manasız duruyor -->
               </li>
               <li class="breadcrumb-item text-nowrap active" aria-current="page">Sepet</li>
             </ol>
@@ -40,7 +40,7 @@
               </div>
             </div>
             <div class="pt-2 pt-sm-0 ps-sm-3 mx-auto mx-sm-0 text-center text-sm-start" style="max-width: 9rem;">
-              <a href="{% url 'add_basket' product.id %}"><button class="btn btn-link px-0 text-danger" type="button"><i class="ci-close-circle me-2"></i><span class="fs-sm">Remove</span></button></a>
+              <a href="{% url 'add_basket' product.id %}"><button class="btn btn-link px-0 text-danger" type="button"><i class="ci-close-circle me-2"></i><span class="fs-sm">Sil</span></button></a>
             </div>
           </div>
           {% endfor %}
