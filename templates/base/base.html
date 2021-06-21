@@ -56,7 +56,7 @@
             <div class="navbar-toolbar d-flex flex-shrink-0 align-items-center">
             <!-- 2 alt satırdaki hrefe if else koyalım. if kullanıcı login olduysa profile götürsün yoksa login ekranına -->
               <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"><span class="navbar-toggler-icon"></span></button><a class="navbar-tool navbar-stuck-toggler" href="#"><span class="navbar-tool-tooltip">Expand menu</span>
-                <div class="navbar-tool-icon-box"><i class="navbar-tool-icon ci-menu"></i></div></a><a class="navbar-tool d-none d-lg-flex" href=""><span class="navbar-tool-tooltip">Favoriler</span>
+                <div class="navbar-tool-icon-box"><i class="navbar-tool-icon ci-menu"></i></div></a><a class="navbar-tool d-none d-lg-flex" href="{% url 'favorite_list' %}"><span class="navbar-tool-tooltip">Favoriler</span>
                 <div class="navbar-tool-icon-box"><i class="navbar-tool-icon ci-heart"></i></div></a>
                 <!--<a class="navbar-tool ms-1 ms-lg-0 me-n1 me-lg-2" href="" data-bs-toggle="modal">
                 <div class="navbar-tool-icon-box"><i class="navbar-tool-icon ci-user"></i></div>
@@ -64,7 +64,7 @@
                 -->
         {% include 'base/navbar_profil.html' %}
                 <!-- HESAP KISMI yukarısı -->
-              <div class="navbar-tool dropdown ms-3"><a class="navbar-tool-icon-box bg-secondary dropdown-toggle" href="shop-cart.html"><span class="navbar-tool-label">4</span><i class="navbar-tool-icon ci-cart"></i></a><a class="navbar-tool-text" href="shop-cart.html"><small>My Cart</small>$265.00</a>
+              <div class="navbar-tool dropdown ms-3"><a class="navbar-tool-icon-box bg-secondary dropdown-toggle" href="{% url 'basket_list' %}"><span class="navbar-tool-label">4</span><i class="navbar-tool-icon ci-cart"></i></a><a class="navbar-tool-text" href="{% url 'basket_list' %}"><small>My Cart</small>$265.00</a>
                 <!-- Cart dropdown-->
                 {% include 'base/sepet.html' %}
         <div class="navbar navbar-expand-lg navbar-light navbar-stuck-menu mt-n2 pt-0 pb-2">
